@@ -1,0 +1,17 @@
+{
+	"folders":
+	[
+		{
+			"path": ".",
+			"folder_exclude_patterns": ["build", "lib"],
+		},
+	],
+	"build_systems":
+    [
+        {
+            "name": "Build",
+            "shell_cmd": "build_scratch",
+            "working_dir": "$project_path",
+        },
+    ]
+}
