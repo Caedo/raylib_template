@@ -3,6 +3,22 @@
 #include <emscripten/emscripten.h>
 #endif
 
+#include <inttypes.h>
+#include <assert.h>
+
+typedef uint32_t u32;
+typedef int32_t i32;
+
+struct Str8 {
+    char* str;
+    uint64_t len;
+
+    char operator[] (int index) {
+        assert(index < len && index >= 0);
+        return str[index];
+    }
+};
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,11 +32,15 @@
 #include "include/raymath.h"
 #undef RAYMATH_IMPLEMENTATION
 
+#include "microui/microui.c"
+#include "microui/microui_renderer.cpp"
+
 #include "common.cpp"
 
 void UpdateDrawFrame();
 
 Camera camera;
+mu_Context muCtx;
 
 int main()
 {
@@ -33,6 +53,8 @@ int main()
 
     camera.fovy = 60.0f;
     camera.projection = CAMERA_PERSPECTIVE;
+
+    muiInit(&muCtx);
 
 #if WEB_BUILD
     emscripten_set_main_loop(UpdateDrawFrame, 0, 1);
@@ -49,15 +71,21 @@ int main()
 
 void UpdateDrawFrame()
 {
+    muiProcessInput(&muCtx);
+    mu_begin(&muCtx);
+
     BeginDrawing();
     ClearBackground({219, 216, 225, 0});
 
     // DrawFPS(0, 0);
 
+    style_window(&muCtx);
 
     BeginMode3D(camera);
     DrawGrid(15, 15);
     EndMode3D();
 
+    mu_end(&muCtx);
+    muiRender(&muCtx);
     EndDrawing();
 }
